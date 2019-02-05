@@ -4,287 +4,55 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import javax.swing.*;
-import java.util.*;
 
 public class Calculator extends JFrame {
-	private double savedValue;
-	private double displayedValue;
-	NumberFormat formatter;
-	int decimal;
-	char operation = 'o';
+	private double _savedValue;
+	private double _displayedValue;
+	private NumberFormat _formatter;
+	private int _decimal;
+	private char _operation = 'o';
 	
-	/*private JButton b0;
-	private JButton b1;
-	private JButton b2;
-	private JButton b3;
-	private JButton b4;
-	private JButton b5;
-	private JButton b6;
-	private JButton b7;
-	private JButton b8;
-	private JButton b9;*/
+	private JButton[] _digits;
+	private JButton _dec;
+	private JButton _neg;
 	
-	private JButton[] digits;
-	private JButton dec;
-	private JButton neg;
+	private JButton _equal;
+	private JButton _plus;
+	private JButton _minus;
+	private JButton _times;
+	private JButton _divide;
+	private JButton _square;
+	private JButton _exponent;
+	private JButton _clear;
+	private JButton _clearentry;
 	
-	private JButton equal;
-	private JButton plus;
-	private JButton minus;
-	private JButton times;
-	private JButton divide;
-	private JButton square;
-	private JButton exponent;
-	private JButton clear;
-	private JButton clearentry;
-	
-	private JTextField display;
+	private JTextField _display;
 	
 	// constructor
 	
 	public Calculator() {
-		savedValue = 0;
-		displayedValue = 0;
-		decimal = 0;
-		formatter = new DecimalFormat("########.########");
+		_savedValue = 0;
+		_displayedValue = 0;
+		_decimal = 0;
+		_formatter = new DecimalFormat("########.########");
 		
-		digits = new JButton[10];
-		for(int i = 0; i < 10; i++) {
-			digits[i] = new JButton(String.valueOf(i));
-			if(i == 0) {
-				digits[i].setPreferredSize(new Dimension(145,70));
-			}
-			else {
-				digits[i].setPreferredSize(new Dimension(70,70));
-			}
-			int number = i;
-			digits[i].addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if(decimal > 0) {
-						displayedValue = displayedValue + (number * Math.pow(10, (-1 * decimal)));
-						decimal++;
-						updateDisplay();
-					}
-					else {
-						displayedValue = displayedValue * 10 + number;
-						updateDisplay();
-					}
-				}
-			});
-		}
+		// Make Buttons;
 		
-		dec = new JButton(".");
-		dec.setPreferredSize(new Dimension(70, 70));
+		makeButtons();
 		
-		neg = new JButton("+/-");
-		neg.setPreferredSize(new Dimension(70, 70));
+		// Implement listeners
 		
-		equal = new JButton("=");
-		equal.setPreferredSize(new Dimension(70, 145));
+		implementListeners();
 		
-		plus = new JButton("+");
-		plus.setPreferredSize(new Dimension(70, 70));
+		// Make ButtonPanel
 		
-		minus = new JButton("-");
-		minus.setPreferredSize(new Dimension(70, 70));
-		
-		times = new JButton("X");
-		times.setPreferredSize(new Dimension(70, 70));
-		
-		divide = new JButton("/");
-		divide.setPreferredSize(new Dimension(70, 70));
-		
-		square = new JButton("^2");
-		square.setPreferredSize(new Dimension(70, 70));
-		
-		exponent = new JButton("^");
-		exponent.setPreferredSize(new Dimension(70, 70));
-		
-		clear = new JButton("AC/C");
-		clear.setPreferredSize(new Dimension(145, 70));
-		
-		clearentry = new JButton("CE");
-		clearentry.setPreferredSize(new Dimension(70, 70));
-		
-		// Implement non-operational listeners
-		
-		dec.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (decimal == 0) {
-					decimal++;
-				}
-			}
-		});
-		
-		neg.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				displayedValue = displayedValue * -1;
-				updateDisplay();
-			}
-		});
-		
-		clear.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				clearScreen();
-			}
-		});
-		
-		clearentry.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(decimal > 0) {
-					displayedValue = (int) (displayedValue * Math.pow(10, decimal - 1)) / Math.pow(10, decimal - 1);
-					decimal--;
-					updateDisplay();
-				}
-				else {
-					displayedValue = (int) (displayedValue / 10);
-					updateDisplay();
-				}
-			}
-		});
-		
-		// Implement operation listeners
-		
-		times.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				operation = '*';
-				saveValue();
-			}
-		});
-		
-		divide.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				operation = '/';
-				saveValue();
-			}
-		});
-		
-		minus.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				operation = '-';
-				saveValue();
-			}
-		});
-		
-		plus.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				operation = '+';
-				saveValue();
-			}
-		});
-		
-		exponent.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				operation = '^';
-				saveValue();
-			}
-		});
-		
-		square.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				displayedValue = displayedValue * displayedValue;
-				updateDisplay();
-			}
-		});
-		
-		// Equal Listener
-		
-		equal.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				double result;
-				switch(operation) {
-				case '+':
-					result = savedValue + displayedValue;
-					displayedValue = result;
-					updateDisplay();
-					break;
-				case '-':
-					result = savedValue - displayedValue;
-					displayedValue = result;
-					updateDisplay();
-					break;
-				case '*':
-					result = savedValue * displayedValue;
-					displayedValue = result;
-					updateDisplay();
-					break;
-				case '/':
-					result =  savedValue / displayedValue;
-					displayedValue = result;
-					updateDisplay();
-					break;
-				case '^':
-					result = Math.pow(savedValue, displayedValue);
-					displayedValue = result;
-					updateDisplay();
-				}
-			}
-		});
-		
-		// First part of buttons
-
-		JPanel buttons1 = new JPanel();
-		FlowLayout buttonlayout1 = new FlowLayout();
-		buttons1.setPreferredSize(new Dimension(230, 450));
-		buttons1.setLayout(buttonlayout1);
-		
-		buttons1.add(clear);
-		buttons1.add(clearentry);
-		buttons1.add(exponent);
-		buttons1.add(square);
-		buttons1.add(neg);
-		
-		for(int i = 1; i < 10; i++){
-			buttons1.add(digits[i]);
-		}
-		buttons1.add(digits[0]);
-		buttons1.add(dec);
-		
-		JPanel buttons2 = new JPanel();
-		FlowLayout buttonlayout2 = new FlowLayout();
-		buttons2.setPreferredSize(new Dimension(70, 445));
-		buttons2.setLayout(buttonlayout2);
-		
-		buttons2.add(plus);
-		buttons2.add(minus);
-		buttons2.add(times);
-		buttons2.add(divide);
-		buttons2.add(equal);
-		
-		// Combine buttons
-		
-		JPanel buttonPanel = new JPanel();
-		FlowLayout layout1 = new FlowLayout();
-		buttons2.setPreferredSize(new Dimension(70, 450));
-		buttons2.setLayout(layout1);
-		
-		buttonPanel.add(buttons1);
-		buttonPanel.add(buttons2);
+		JPanel buttonPanel = makeButtonPanel();
 		
 		// TextField
 		
-		JPanel textPanel = new JPanel();
-		display = new JTextField("0", 10);
-		display.setEditable(false);
-		display.setPreferredSize(new Dimension(100, 70));
-		Font bigFont = display.getFont().deriveFont(Font.PLAIN, 40f);
-		display.setFont(bigFont);
-		display.setHorizontalAlignment(JTextField.RIGHT);
-		textPanel.add(display);
+		JPanel textPanel = makeTextPanel();
 		
-		// Put both components onto frame
+		// Put both panels onto frame
 		
 		JPanel p = new JPanel();
 		p.setLayout(new FlowLayout());
@@ -297,31 +65,246 @@ public class Calculator extends JFrame {
 	// Display functions
 	
 	public void updateDisplay(){
-		display.setText(formatter.format(displayedValue));
+		_display.setText(_formatter.format(_displayedValue));
 	}
 	
 	public void resetDisplay(){
-		displayedValue = 0;
-		decimal = 0;
+		_displayedValue = 0;
+		_decimal = 0;
 		updateDisplay();
 	}
 	
 	public void allCancel(){
-		savedValue = 0;
-		operation = 'o';
+		_savedValue = 0;
+		_operation = 'o';
 		resetDisplay();
 	}
 	
 	public void clearScreen(){
-		if(displayedValue == 0) {
+		if(_displayedValue == 0) {
 			allCancel();
 		}
 		else resetDisplay();
 	}
 
 	public void saveValue() {
-		savedValue = displayedValue;
+		_savedValue = _displayedValue;
 		clearScreen();
 	}
+	
+	public void changeOperation(char op) {
+		_operation = op;
+		saveValue();
+	}
 
+	// Initialization Functions
+	
+	public JButton makeButton(String text, int height, int width) {
+		JButton newButton;
+		
+		newButton = new JButton(text);
+		newButton.setPreferredSize(new Dimension(height, width));
+		return newButton;
+	}
+	
+	private void makeButtons(){
+		_digits = makeDigitButtons();
+		makeNonDigitButtons();
+	}
+	
+	private JButton[] makeDigitButtons(){
+		JButton[] digits = new JButton[10];
+		for(int i = 0; i < 10; i++) {
+			if(i == 0) {
+				digits[i] = makeButton(String.valueOf(i), 145, 70);
+			}
+			else {
+				digits[i] = makeButton(String.valueOf(i), 70, 70);
+			}
+			int number = i;
+			digits[i].addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(_decimal > 0) {
+						_displayedValue = _displayedValue + (number * Math.pow(10, (-1 * _decimal)));
+						_decimal++;
+						updateDisplay();
+					}
+					else {
+						_displayedValue = _displayedValue * 10 + number;
+						updateDisplay();
+					}
+				}
+			});
+		}
+		return digits;
+	}	
+	
+	private void makeNonDigitButtons() {		
+		_dec = makeButton(".", 70, 70);
+		_neg = makeButton("+/-", 70, 70);
+		_equal = makeButton("=", 70, 145);
+		_plus = makeButton("+", 70, 70);
+		_minus = makeButton("-", 70, 70);
+		_times = makeButton("X", 70, 70);
+		_divide = makeButton("/", 70, 70);
+		_square = makeButton("^2", 70, 70);
+		_exponent = makeButton("^", 70, 70);
+		_clear = makeButton("AC/C", 145, 70);
+		_clearentry = makeButton("CE", 70, 70);
+	}
+	
+	private void implementListeners() {
+		// Implement non-operational listeners
+		implementNonOperationListeners();
+		
+		// Implement operation listeners
+		implementOperationListeners();
+		
+		// Equal Listener
+		implementEqualListener();
+	}
+	
+	private void implementNonOperationListeners() {
+		_dec.addActionListener(e -> {if(_decimal == 0) _decimal++;});
+		
+		_neg.addActionListener(e -> {
+				_displayedValue = _displayedValue * -1;
+				updateDisplay();
+			}
+		);
+		
+		_clear.addActionListener(e -> {clearScreen();});
+		
+		_clearentry.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(_decimal > 0) {
+					_displayedValue = (int) (_displayedValue * Math.pow(10, _decimal - 1)) / Math.pow(10, _decimal - 1);
+					_decimal--;
+					updateDisplay();
+				}
+				else {
+					_displayedValue = (int) (_displayedValue / 10);
+					updateDisplay();
+				}
+			}
+		});
+	}
+	
+	private void implementOperationListeners() {
+		_times.addActionListener( e-> changeOperation('*'));
+		_divide.addActionListener( e-> changeOperation('/'));
+		_minus.addActionListener( e-> changeOperation('-'));
+		_plus.addActionListener( e-> changeOperation('+'));
+		_exponent.addActionListener( e-> changeOperation('^'));
+		
+		_square.addActionListener(e -> {
+				_displayedValue = _displayedValue * _displayedValue;
+				updateDisplay();
+			}
+		);
+	}
+	
+	private void implementEqualListener() {
+		_equal.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				double result;
+				switch(_operation) {
+				case '+':
+					result = _savedValue + _displayedValue;
+					_displayedValue = result;
+					updateDisplay();
+					break;
+				case '-':
+					result = _savedValue - _displayedValue;
+					_displayedValue = result;
+					updateDisplay();
+					break;
+				case '*':
+					result = _savedValue * _displayedValue;
+					_displayedValue = result;
+					updateDisplay();
+					break;
+				case '/':
+					result =  _savedValue / _displayedValue;
+					_displayedValue = result;
+					updateDisplay();
+					break;
+				case '^':
+					result = Math.pow(_savedValue, _displayedValue);
+					_displayedValue = result;
+					updateDisplay();
+				}
+			}
+		});
+	}
+	
+	private JPanel makeButtonPanel() {
+		JPanel buttons1 = makeFirstButtonPanel();
+		JPanel buttons2 = makeSecondButtonPanel();
+			
+		// Combine buttons
+		
+		JPanel buttonPanel = new JPanel();
+		FlowLayout layout1 = new FlowLayout();
+		buttons2.setPreferredSize(new Dimension(70, 450));
+		buttons2.setLayout(layout1);
+		
+		buttonPanel.add(buttons1);
+		buttonPanel.add(buttons2);
+		
+		return buttonPanel;
+	}
+	
+	private JPanel makeFirstButtonPanel() {
+
+		JPanel buttons1 = new JPanel();
+		FlowLayout buttonlayout1 = new FlowLayout();
+		buttons1.setPreferredSize(new Dimension(230, 450));
+		buttons1.setLayout(buttonlayout1);
+		
+		buttons1.add(_clear);
+		buttons1.add(_clearentry);
+		buttons1.add(_exponent);
+		buttons1.add(_square);
+		buttons1.add(_neg);
+		
+		for(int i = 1; i < 10; i++){
+			buttons1.add(_digits[i]);
+		}
+		buttons1.add(_digits[0]);
+		buttons1.add(_dec);
+		
+		return buttons1;
+	}
+	
+	private JPanel makeSecondButtonPanel() {
+			
+		JPanel buttons2 = new JPanel();
+		FlowLayout buttonlayout2 = new FlowLayout();
+		buttons2.setPreferredSize(new Dimension(70, 445));
+		buttons2.setLayout(buttonlayout2);
+		
+		buttons2.add(_plus);
+		buttons2.add(_minus);
+		buttons2.add(_times);
+		buttons2.add(_divide);
+		buttons2.add(_equal);
+		
+		return buttons2;
+	}
+	
+	private JPanel makeTextPanel() {
+		JPanel textPanel = new JPanel();
+		_display = new JTextField("0", 10);
+		_display.setEditable(false);
+		_display.setPreferredSize(new Dimension(100, 70));
+		Font bigFont = _display.getFont().deriveFont(Font.PLAIN, 40f);
+		_display.setFont(bigFont);
+		_display.setHorizontalAlignment(JTextField.RIGHT);
+		textPanel.add(_display);
+		return textPanel;
+	}
 }
