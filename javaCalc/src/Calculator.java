@@ -99,7 +99,7 @@ public class Calculator extends JFrame {
 
 	// Initialization Functions
 	
-	public JButton makeButton(String text, int height, int width) {
+	private JButton makeButton(String text, int height, int width) {
 		JButton newButton;
 		
 		newButton = new JButton(text);
@@ -210,33 +210,25 @@ public class Calculator extends JFrame {
 		_equal.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double result;
+				double result = 0; // Init'd since was getting an error
 				switch(_operation) {
 				case '+':
 					result = _savedValue + _displayedValue;
-					_displayedValue = result;
-					updateDisplay();
 					break;
 				case '-':
 					result = _savedValue - _displayedValue;
-					_displayedValue = result;
-					updateDisplay();
 					break;
 				case '*':
 					result = _savedValue * _displayedValue;
-					_displayedValue = result;
-					updateDisplay();
 					break;
 				case '/':
 					result =  _savedValue / _displayedValue;
-					_displayedValue = result;
-					updateDisplay();
 					break;
 				case '^':
 					result = Math.pow(_savedValue, _displayedValue);
-					_displayedValue = result;
-					updateDisplay();
 				}
+				_displayedValue = result;
+				updateDisplay();
 			}
 		});
 	}
